@@ -289,8 +289,8 @@ export default function DiscPage() {
  <span className="text-gradient-gold">tu resultado.</span>
  </h2>
  <p className="mt-3 text-slate-600 max-w-xl mx-auto">
- Mónica salió "Promotor Colaborativo" (alta I + alta D). Por eso brilla en
- ventas y reclutamiento.
+ Mónica salió &ldquo;Promotor Colaborativo&rdquo; (alta I + alta D). Por eso brilla
+ en ventas y reclutamiento.
  </p>
  </ScrollReveal>
 

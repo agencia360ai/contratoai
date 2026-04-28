@@ -262,7 +262,7 @@ export function PostJobWizard() {
  </h1>
 
  <p className="text-lg text-zinc-300 mb-8 max-w-lg mx-auto">
- Tu vacante <strong className="text-zinc-100">"{data.title || "Vacante"}"</strong> está
+ Tu vacante <strong className="text-zinc-100">&ldquo;{data.title || "Vacante"}&rdquo;</strong> está
  publicada. Empezamos a buscar candidatos en LinkedIn, Indeed,
  Computrabajo y nuestra base.
  </p>

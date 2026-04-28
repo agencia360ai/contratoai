@@ -154,7 +154,7 @@ function CasePreview({ industry, question }: { industry: string; question: strin
  <Badge variant="default" className="mb-3 text-[10px]">
  {industry.toUpperCase()}
  </Badge>
- <p className="text-slate-800 text-base leading-relaxed">"{question}"</p>
+  <p className="text-slate-800 text-base leading-relaxed">&ldquo;{question}&rdquo;</p>
  </div>
  );
 }

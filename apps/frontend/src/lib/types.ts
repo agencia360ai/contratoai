@@ -19,6 +19,7 @@ export interface Job {
   title: string;
   company_id: string | null;
   company_name?: string;
+  company_bracket?: Bracket | null;
   location: string | null;
   salary_min: number | null;
   salary_max: number | null;

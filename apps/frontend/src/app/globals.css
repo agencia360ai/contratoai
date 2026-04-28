@@ -5,6 +5,8 @@
 @layer base {
   :root {
     /* LIGHT mode is now the DEFAULT — premium B2B SaaS feel */
+    --font-jakarta: "Inter", "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-mono: "JetBrains Mono", "SFMono-Regular", ui-monospace, "Cascadia Code", "Source Code Pro", Menlo, monospace;
     --background: 0 0% 100%;            /* pure white */
     --foreground: 224 71% 4%;           /* near-black */
     --card: 0 0% 100%;
