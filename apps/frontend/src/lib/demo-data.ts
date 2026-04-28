@@ -1,5 +1,29 @@
+import type { Job } from "@/lib/types";
+
 // Demo data for previewing the UI without a configured Supabase backend.
 // All data is fictional. Replace by real queries when Supabase is configured.
+
+type DemoJob = Pick<
+  Job,
+  | "id"
+  | "title"
+  | "location"
+  | "salary_min"
+  | "salary_max"
+  | "salary_currency"
+  | "modality"
+  | "experience_level"
+  | "posted_at"
+  | "skills_extracted"
+  | "benefits_extracted"
+  | "description"
+  | "url"
+  | "source"
+  | "is_active"
+> & {
+  company_name: string;
+  company_bracket: NonNullable<Job["company_bracket"]>;
+};
 
 export const DEMO_JOBS = [
   {
@@ -119,7 +143,7 @@ export const DEMO_JOBS = [
     source: "demo",
     is_active: true,
   },
-];
+] satisfies DemoJob[];
 
 export const DEMO_COMPANIES = [
   { company_id: "c1", name: "Banistmo",        industry: "Banca",      size: "500+",   location: "Ciudad de Panamá", total_score: 47892, rank_global: 1, rank_in_industry: 1, score_change_week:  3, avg_response_time_h: 1.2, active_jobs_count: 23, total_hires: 412 },
