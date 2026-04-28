@@ -1,0 +1,29 @@
+{
+  "name": "tecontrato-panama",
+  "version": "0.1.0",
+  "private": true,
+  "description": "AI-powered jobs platform for Panama with gamification",
+  "workspaces": [
+    "apps/*"
+  ],
+  "scripts": {
+    "dev": "pnpm --filter frontend dev",
+    "build": "pnpm --filter frontend build",
+    "start": "pnpm --filter frontend start",
+    "lint": "pnpm --filter frontend lint",
+    "typecheck": "pnpm --filter frontend typecheck",
+    "db:start": "supabase start",
+    "db:stop": "supabase stop",
+    "db:reset": "supabase db reset",
+    "db:migrate": "for f in db/migrations/*.sql; do psql $DATABASE_URL -f \"$f\"; done",
+    "db:seed": "for f in db/seed/*.sql; do psql $DATABASE_URL -f \"$f\"; done",
+    "scrape:computrabajo": "uv run python -m packages.scrapers.computrabajo.scraper",
+    "scrape:all": "uv run python -m packages.pipelines.flows --flow daily_scrape",
+    "match:run": "uv run python -m packages.pipelines.flows --flow match_all"
+  },
+  "engines": {
+    "node": ">=20",
+    "pnpm": ">=9"
+  },
+  "packageManager": "pnpm@9.12.0"
+}

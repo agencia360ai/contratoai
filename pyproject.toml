@@ -1,0 +1,80 @@
+[project]
+name = "tecontrato-panama"
+version = "0.1.0"
+description = "AI-powered jobs platform for Panama with gamification"
+requires-python = ">=3.12"
+authors = [{ name = "Joann" }]
+readme = "README.md"
+
+dependencies = [
+  # HTTP & scraping
+  "httpx[http2]>=0.27.0",
+  "curl-cffi>=0.7.0",
+  "selectolax>=0.3.21",
+  "rebrowser-playwright>=1.52.0",
+  "playwright>=1.48.0",
+  "tenacity>=9.0.0",
+
+  # Database
+  "supabase>=2.10.0",
+  "psycopg[binary]>=3.2.0",
+  "asyncpg>=0.30.0",
+
+  # AI & embeddings
+  "anthropic>=0.40.0",
+  "openai>=1.55.0",
+  "tiktoken>=0.8.0",
+
+  # Orchestration
+  "prefect>=3.1.0",
+  "redis>=5.2.0",
+
+  # Data validation
+  "pydantic>=2.10.0",
+  "pydantic-settings>=2.6.0",
+
+  # Utilities
+  "python-dotenv>=1.0.1",
+  "structlog>=24.4.0",
+  "rich>=13.9.0",
+  "typer>=0.13.0",
+  "python-dateutil>=2.9.0",
+  "unidecode>=1.3.8",
+  "rapidfuzz>=3.10.0",
+
+  # API (FastAPI for heavy NLP)
+  "fastapi>=0.115.0",
+  "uvicorn[standard]>=0.32.0",
+
+  # Telegram (optional)
+  "telethon>=1.37.0",
+]
+
+[dependency-groups]
+dev = [
+  "pytest>=8.3.0",
+  "pytest-asyncio>=0.24.0",
+  "pytest-cov>=6.0.0",
+  "ruff>=0.7.0",
+  "mypy>=1.13.0",
+  "ipython>=8.29.0",
+]
+
+[tool.ruff]
+line-length = 110
+target-version = "py312"
+extend-exclude = ["**/migrations/**", ".venv", "node_modules"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "N", "UP", "B", "C4", "SIM", "RUF"]
+ignore = ["E501"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests", "packages"]
+asyncio_mode = "auto"
+python_files = ["test_*.py", "*_test.py"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+ignore_missing_imports = true

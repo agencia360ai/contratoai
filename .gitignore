@@ -1,0 +1,67 @@
+# Environment
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv/
+venv/
+env/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.egg-info/
+build/
+dist/
+
+# uv
+.uv/
+
+# Node / Next.js
+node_modules/
+.next/
+out/
+.turbo/
+.pnpm-store/
+.npm/
+
+# Build outputs
+*.log
+*.tsbuildinfo
+next-env.d.ts
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Supabase
+supabase/.branches/
+supabase/.temp/
+
+# Local data
+data/
+scraped_html/
+*.sqlite
+*.db
+
+# Prefect
+.prefect/
+prefect.db
+
+# Coverage
+coverage/
+.coverage
+htmlcov/
+
+# Docker
+docker-compose.override.yml

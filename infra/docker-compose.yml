@@ -1,0 +1,68 @@
+services:
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  prefect:
+    image: prefecthq/prefect:3-latest
+    restart: unless-stopped
+    ports:
+      - "4200:4200"
+    command: prefect server start --host 0.0.0.0
+    environment:
+      PREFECT_HOME: /data
+      PREFECT_UI_URL: http://localhost:4200
+      PREFECT_API_URL: http://localhost:4200/api
+    volumes:
+      - prefect_data:/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4200/api/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+
+  scrapers:
+    build:
+      context: ..
+      dockerfile: infra/Dockerfile.scrapers
+    restart: unless-stopped
+    depends_on:
+      prefect:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    env_file:
+      - ../.env
+    environment:
+      PREFECT_API_URL: http://prefect:4200/api
+      REDIS_URL: redis://redis:6379/0
+    command: prefect worker start -p default
+    volumes:
+      - ../packages:/app/packages
+
+  api:
+    build:
+      context: ..
+      dockerfile: infra/Dockerfile.api
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    env_file:
+      - ../.env
+    depends_on:
+      redis:
+        condition: service_healthy
+    command: uvicorn apps.api.main:app --host 0.0.0.0 --port 8000
+
+volumes:
+  redis_data:
+  prefect_data:
