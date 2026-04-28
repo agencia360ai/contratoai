@@ -143,7 +143,7 @@ export function VoiceInterviewDemo() {
  ))}
  {step === 0 && (
  <p className="text-zinc-500 text-sm italic text-center pt-12">
- Click "Reproducir demo" para ver la entrevista
+ Click &ldquo;Reproducir demo&rdquo; para ver la entrevista
  </p>
  )}
  </div>

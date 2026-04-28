@@ -145,8 +145,8 @@ export default function HomePage() {
                   <Sparkles className="size-3" /> Por una experta en reclutamiento
                 </Badge>
                 <blockquote className="font-display text-2xl md:text-3xl font-medium leading-snug text-slate-900 mb-6 text-balance">
-                  "15 años en banca, aviación y retail luxury. Cuando vi que esto pre-filtra
-                  300 CVs con calidad de consultor humano, supe que cambia el juego para Panamá."
+                  &ldquo;15 años en banca, aviación y retail luxury. Cuando vi que esto pre-filtra
+                  300 CVs con calidad de consultor humano, supe que cambia el juego para Panamá.&rdquo;
                 </blockquote>
                 <div className="flex items-center gap-4">
                   <div className="grid size-12 place-items-center rounded-full bg-gradient-to-br from-gold-400 to-gold-600 text-white font-bold text-lg shadow-md">
