@@ -16,12 +16,14 @@ from packages.ai.claude_client import enrich_job
 from packages.ai.embeddings import embed_job, embed_jobs_batch
 from packages.pipelines.company_scoring import compute_all_company_scores
 from packages.pipelines.matching_pipeline import full_matching_all_candidates
+from packages.scrapers.acp import ACPScraper
 from packages.scrapers.computrabajo import ComputrabajoPanamaScraper
 from packages.scrapers.encuentra24 import Encuentra24Scraper
 from packages.scrapers.hiring_room import HiringRoomScraper
 from packages.scrapers.konzerta import KonzertaScraper
 from packages.scrapers.mitradel import MitradelScraper
 from packages.scrapers.workday import WorkdayScraper
+from packages.scrapers.ciudad_del_saber import CiudadDelSaberScraper
 from packages.shared.db import get_supabase_admin
 from packages.shared.logger import get_logger
 
@@ -58,6 +60,16 @@ async def task_scrape_hiring_room() -> dict:
 @task(retries=1, retry_delay_seconds=60)
 async def task_scrape_workday() -> dict:
     return await WorkdayScraper().run()
+
+
+@task(retries=1, retry_delay_seconds=60)
+async def task_scrape_acp() -> dict:
+    return await ACPScraper().run()
+
+
+@task(retries=1, retry_delay_seconds=60)
+async def task_scrape_ciudad_del_saber() -> dict:
+    return await CiudadDelSaberScraper().run()
 
 
 @task
@@ -122,6 +134,8 @@ async def daily_scrape() -> dict:
         task_scrape_mitradel(),
         task_scrape_hiring_room(),
         task_scrape_workday(),
+        task_scrape_acp(),
+        task_scrape_ciudad_del_saber(),
         return_exceptions=True,
     )
     enriched = await task_enrich_recent_jobs(limit=300)

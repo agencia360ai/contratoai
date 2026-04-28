@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { createClient } from "@/lib/supabase/server";
+import { IntakeLinkCard } from "@/components/intake/IntakeLinkCard";
 
 export const metadata: Metadata = {
  title: "Dashboard reclutador",
@@ -243,6 +244,15 @@ export default async function RecruiterDashboardPage() {
  </div>
  </div>
  </div>
+
+ {!isDemo && (
+ <section className="mt-8">
+ <h2 className="font-display text-xl font-bold text-slate-900 mb-3">
+ Tu link público
+ </h2>
+ <IntakeLinkCard />
+ </section>
+ )}
 
  <section className="mt-8">
  <h2 className="font-display text-xl font-bold text-slate-900 mb-3">

@@ -1,0 +1,75 @@
+name: Daily scrape
+
+on:
+  schedule:
+    # 08:00 UTC = 03:00 hora de Panamá. Cada día.
+    - cron: "0 8 * * *"
+  workflow_dispatch:
+    inputs:
+      flow:
+        description: "Pipeline flow to run"
+        required: false
+        default: "daily_scrape"
+        type: choice
+        options:
+          - daily_scrape
+          - weekly_full
+          - match_all
+          - score_companies
+
+concurrency:
+  group: scrape
+  cancel-in-progress: false
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    timeout-minutes: 50
+    env:
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+      SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      CLAUDE_MODEL_HEAVY: ${{ vars.CLAUDE_MODEL_HEAVY || 'claude-sonnet-4-5-20250929' }}
+      CLAUDE_MODEL_FAST: ${{ vars.CLAUDE_MODEL_FAST || 'claude-haiku-4-5-20251001' }}
+      EMBEDDING_MODEL: ${{ vars.EMBEDDING_MODEL || 'text-embedding-3-small' }}
+      EMBEDDING_DIMENSIONS: "1536"
+      SCRAPER_MAX_PAGES: ${{ vars.SCRAPER_MAX_PAGES || '15' }}
+      SCRAPER_CONCURRENCY: ${{ vars.SCRAPER_CONCURRENCY || '3' }}
+      SCRAPER_DELAY_SECONDS: ${{ vars.SCRAPER_DELAY_SECONDS || '1.5' }}
+      LOG_LEVEL: INFO
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v3
+        with:
+          version: "latest"
+          enable-cache: true
+
+      - name: Setup Python
+        run: uv python install 3.12
+
+      - name: Install deps
+        run: uv sync --frozen
+
+      - name: Install Playwright Chromium
+        run: uv run playwright install --with-deps chromium
+
+      - name: Run scrape flow
+        run: |
+          FLOW="${{ github.event.inputs.flow || 'daily_scrape' }}"
+          uv run python -m packages.pipelines.flows --flow "$FLOW"
+
+      - name: Upload logs on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: scrape-logs
+          path: |
+            *.log
+            **/scrape-*.log
+          if-no-files-found: ignore
+          retention-days: 7
