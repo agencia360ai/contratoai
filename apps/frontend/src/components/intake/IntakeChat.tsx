@@ -68,8 +68,8 @@ export function IntakeChat({
       text:
         link.welcome_message?.trim() ||
         (kind === "job"
-          ? `Hola, soy Moni. Cuéntame de la vacante: nombre del puesto, salario, requisitos. Puedes escribir, hablar (🎤), subir un PDF/imagen del JD, o mezclar todo. Cuando termines, dale a "Listo".`
-          : `Hola, soy Moni. Sube tu CV (PDF o imagen) o cuéntame en voz/texto de tu experiencia. Cuando termines, dale a "Listo".`),
+          ? `Hola, soy Sofi. Cuéntame de la vacante: nombre del puesto, salario, requisitos. Puedes escribir, hablar (🎤), subir un PDF/imagen del JD, o mezclar todo. Cuando termines, dale a "Listo".`
+          : `Hola, soy Sofi. Sube tu CV (PDF o imagen) o cuéntame en voz/texto de tu experiencia. Cuando termines, dale a "Listo".`),
     },
   ]);
   const [text, setText] = useState("");
@@ -516,7 +516,7 @@ export function IntakeChat({
           {parsedResult.suggestions.length > 0 && (
             <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4">
               <p className="text-xs font-mono uppercase tracking-wider text-amber-700 mb-2 flex items-center gap-1.5">
-                <Lightbulb className="size-3.5" /> Sugerencias de Moni
+                <Lightbulb className="size-3.5" /> Sugerencias de Sofi
               </p>
               <ul className="text-sm text-amber-900 space-y-1.5">
                 {parsedResult.suggestions.map((s, i) => (

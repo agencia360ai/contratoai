@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
 const TRANSCRIPT = [
- { who: "ai", t: "Hola Carla, soy Moni. Voy a hacerte 5 preguntas rápidas. ¿Puedes contarme sobre un cliente difícil que recuerdes?" },
+ { who: "ai", t: "Hola Carla, soy Sofi. Voy a hacerte 5 preguntas rápidas. ¿Puedes contarme sobre un cliente difícil que recuerdes?" },
  { who: "user", t: "Claro. Hace dos meses una clienta entró 5 minutos antes de cerrar pidiendo ver toda la colección de bolsos Hermès..." },
  { who: "ai", t: "Y cómo manejaste el tiempo y la prisa de tu equipo?" },
  { who: "user", t: "Le ofrecí cita VIP al día siguiente con champagne. Cerró la venta de $4,800 y volvió 3 veces más." },
@@ -59,7 +59,7 @@ export function VoiceInterviewDemo() {
 
  <div className="mt-8 text-center">
  <Badge variant="ai" className="mb-3">
- <Sparkles className="size-3" /> Moni · IA Recruiter
+ <Sparkles className="size-3" /> Sofi · IA Recruiter
  </Badge>
  <p className="text-sm text-zinc-400 mb-1">
  {playing ? "Escuchando..." : showAnalysis ? "Análisis listo" : "Demo · 30 segundos"}
