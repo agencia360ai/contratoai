@@ -68,7 +68,7 @@ export default async function MatchesPage() {
  Mis matches
  </h1>
  <p className="mt-2 text-slate-600">
- Ordenados por compatibilidad. Moni actualiza esto cada noche.
+ Ordenados por compatibilidad. Sofi actualiza esto cada noche.
  </p>
  </div>
  {isDemo && (
@@ -110,7 +110,7 @@ export default async function MatchesPage() {
  <Sparkles className="mx-auto size-10 text-primary-500 mb-3" aria-hidden />
  <p className="text-lg font-bold text-slate-700">Aún no tienes matches</p>
  <p className="mt-1 text-slate-600 mb-4">
- Moni está buscando los mejores trabajos para ti. Revisa en unos minutos.
+ Sofi está buscando los mejores trabajos para ti. Revisa en unos minutos.
  </p>
  <Button asChild>
  <Link href="/jobs">Ver todos los trabajos</Link>

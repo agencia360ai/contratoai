@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import { ChatOnboarding } from "@/components/onboarding/ChatOnboarding";
 
 export const metadata: Metadata = {
- title: "Empezar — 5 minutos con Moni",
- description: "Una conversación rápida con Moni, la IA panameña, y listo.",
+ title: "Empezar — 5 minutos con Sofi",
+ description: "Una conversación rápida con Sofi, la IA panameña, y listo.",
 };
 
 export default function OnboardingPage() {

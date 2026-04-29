@@ -29,7 +29,7 @@ type Step = {
 };
 
 const STEPS: Step[] = [
- { id: 1, field: "consent", question: "¡Hola! Soy Moni, tu asistente. En 5 minutos vamos a armar tu perfil para que las empresas te encuentren. Tus datos están seguros — solo los uso para encontrarte trabajos. ¿Empezamos?", type: "yes_no" },
+ { id: 1, field: "consent", question: "¡Hola! Soy Sofi, tu asistente. En 5 minutos vamos a armar tu perfil para que las empresas te encuentren. Tus datos están seguros — solo los uso para encontrarte trabajos. ¿Empezamos?", type: "yes_no" },
  { id: 2, field: "name", question: "¿Cómo te llamas?", type: "text", placeholder: "Tu nombre" },
  { id: 3, field: "age_range", question: "¿En qué rango de edad estás?", type: "chips", options: [
  { id: "18-25", label: "18-25" }, { id: "26-35", label: "26-35" }, { id: "36-45", label: "36-45" }, { id: "46-55", label: "46-55" }, { id: "55+", label: "55+" },
@@ -67,7 +67,7 @@ const STEPS: Step[] = [
  ]},
 ];
 
-type Message = { who: "moni" | "user"; text: string; step?: number };
+type Message = { who: "sofi" | "user"; text: string; step?: number };
 
 const STAGES = [
  { from: 1, to: 4, icon: Sparkles, label: "Lo básico" },
@@ -83,7 +83,7 @@ function currentStage(step: number) {
 export function ChatOnboarding() {
  const [started, setStarted] = useState(false);
  const [messages, setMessages] = useState<Message[]>([
- { who: "moni", text: STEPS[0].question, step: 1 },
+ { who: "sofi", text: STEPS[0].question, step: 1 },
  ]);
  const [stepIdx, setStepIdx] = useState(0);
  const [, setAnswers] = useState<Record<string, unknown>>({});
@@ -111,7 +111,7 @@ export function ChatOnboarding() {
  setTyping(false);
  setMessages((m) => [
  ...m,
- { who: "moni", text: "¡Listo! 🎉 Encontré varias vacantes que coinciden contigo. Vamos a verlas." },
+ { who: "sofi", text: "¡Listo! 🎉 Encontré varias vacantes que coinciden contigo. Vamos a verlas." },
  ]);
  setDone(true);
  }, 800);
@@ -123,7 +123,7 @@ export function ChatOnboarding() {
  setTyping(false);
  const nextIdx = stepIdx + 1;
  const next = STEPS[nextIdx];
- setMessages((m) => [...m, { who: "moni", text: next.question, step: next.id }]);
+ setMessages((m) => [...m, { who: "sofi", text: next.question, step: next.id }]);
  setStepIdx(nextIdx);
  setMultiSel([]);
  setTextInput("");
@@ -138,7 +138,7 @@ export function ChatOnboarding() {
  if (!yes && currentStep.id === 1) {
  setMessages((m) => [
  ...m,
- { who: "moni", text: "Sin problema. Cuando estés listo me avisas. Mientras tanto, puedes ver las vacantes sin perfil." },
+ { who: "sofi", text: "Sin problema. Cuando estés listo me avisas. Mientras tanto, puedes ver las vacantes sin perfil." },
  ]);
  setDone(true);
  }
@@ -165,7 +165,7 @@ export function ChatOnboarding() {
 
  return (
  <div className="mx-auto max-w-3xl px-4 pb-32">
- {/* Sticky header with Moni avatar + progress */}
+ {/* Sticky header with Sofi avatar + progress */}
  <div className="sticky top-0 z-20 -mx-4 mb-6 px-4 pt-4 bg-white/95 backdrop-blur-md border-b border-slate-200">
  <div className="flex items-center justify-between mb-3">
  <Link
@@ -175,9 +175,9 @@ export function ChatOnboarding() {
  <ArrowLeft className="size-4" /> Salir
  </Link>
  <div className="flex items-center gap-3">
- <MoniBadge size="sm" online />
+ <SofiBadge size="sm" online />
  <div className="text-right">
- <p className="text-sm font-bold text-slate-900 leading-none">Moni</p>
+ <p className="text-sm font-bold text-slate-900 leading-none">Sofi</p>
  <p className="text-xs text-emerald-600 font-mono">en línea</p>
  </div>
  </div>
@@ -229,12 +229,12 @@ export function ChatOnboarding() {
  {messages.map((m, i) => (
  <motion.div
  key={i}
- initial={{ opacity: 0, x: m.who === "moni" ? -10 : 10, y: 5 }}
+ initial={{ opacity: 0, x: m.who === "sofi" ? -10 : 10, y: 5 }}
  animate={{ opacity: 1, x: 0, y: 0 }}
  transition={{ duration: 0.2 }}
  className={`flex items-end gap-2 ${m.who === "user" ? "justify-end" : "justify-start"}`}
  >
- {m.who === "moni" && <MoniBadge size="xs" />}
+ {m.who === "sofi" && <SofiBadge size="xs" />}
  <div
  className={
  m.who === "user"
@@ -250,7 +250,7 @@ export function ChatOnboarding() {
 
  {typing && (
  <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex items-end gap-2">
- <MoniBadge size="xs" />
+ <SofiBadge size="xs" />
  <div className="rounded-2xl rounded-bl-sm bg-slate-100 px-4 py-3">
  <span className="inline-flex gap-1">
  {[0, 1, 2].map((i) => (
@@ -268,32 +268,32 @@ export function ChatOnboarding() {
 
  {/* Input area sticky bottom */}
  {!done && !typing && (
- <div className="fixed inset-x-0 bottom-0 z-20 border-t border-slate-200 bg-white/95 backdrop-blur-md p-4 pb-6">
+ <div className="fixed inset-x-0 bottom-0 z-20 border-t border-slate-200 bg-white/95 backdrop-blur-md px-4 pt-4 pb-[max(env(safe-area-inset-bottom),20px)] shadow-[0_-12px_32px_-16px_rgba(15,23,42,0.10)]">
  <div className="mx-auto max-w-3xl">
  {currentStep.hint && (
- <p className="text-xs text-slate-500 mb-2 text-center">{currentStep.hint}</p>
+ <p className="text-xs text-slate-500 mb-3 text-center">{currentStep.hint}</p>
  )}
 
  {currentStep.type === "yes_no" && (
- <div className="flex gap-2">
- <Button variant="secondary" size="lg" className="flex-1" onClick={() => handleYesNo(false)}>
- <X className="size-4" /> Mejor no
+ <div className="flex gap-3">
+ <Button variant="secondary" size="xl" className="flex-1" onClick={() => handleYesNo(false)}>
+ <X className="size-5" /> Mejor no
  </Button>
- <Button variant="primary" size="lg" className="flex-1" onClick={() => handleYesNo(true)}>
+ <Button variant="gold" size="xl" className="flex-[1.6]" onClick={() => handleYesNo(true)}>
  Sí, empecemos
- <ChevronRight className="size-4" />
+ <ChevronRight className="size-5" />
  </Button>
  </div>
  )}
 
  {currentStep.type === "chips" && (
  <>
- <div className="flex flex-wrap gap-2 mb-2">
+ <div className="flex flex-wrap gap-2.5 mb-3">
  {currentStep.options?.map((o) => (
  <button
  key={o.id}
  onClick={() => handleChip(o)}
- className="rounded-xl border-2 border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-900 hover:text-white hover:border-slate-900 transition-colors cursor-pointer"
+ className="rounded-full border-2 border-slate-200 bg-white px-5 py-2.5 text-base font-semibold text-slate-800 hover:bg-slate-900 hover:text-white hover:border-slate-900 active:scale-[0.97] transition-all cursor-pointer"
  >
  {o.label}
  </button>
@@ -305,10 +305,10 @@ export function ChatOnboarding() {
  value={textInput}
  onChange={(e) => setTextInput(e.target.value)}
  placeholder="O escribe otra opción"
- className="flex-1"
+ className="flex-1 h-12 text-base"
  />
- <Button type="submit" size="default" disabled={!textInput.trim()}>
- <Send className="size-4" />
+ <Button type="submit" variant="gold" size="lg" disabled={!textInput.trim()}>
+ <Send className="size-5" />
  </Button>
  </form>
  )}
@@ -322,17 +322,17 @@ export function ChatOnboarding() {
  value={textInput}
  onChange={(e) => setTextInput(e.target.value)}
  placeholder={currentStep.placeholder}
- className="flex-1"
+ className="flex-1 h-12 text-base"
  />
- <Button type="submit" size="default" disabled={!textInput.trim()}>
- <Send className="size-4" /> Enviar
+ <Button type="submit" variant="gold" size="lg" disabled={!textInput.trim()}>
+ <Send className="size-5" /> Enviar
  </Button>
  </form>
  )}
 
  {currentStep.type === "multi_select" && (
  <>
- <div className="flex flex-wrap gap-2 mb-3">
+ <div className="flex flex-wrap gap-2.5 mb-3">
  {currentStep.options?.map((o) => {
  const sel = multiSel.includes(o.id);
  return (
@@ -341,10 +341,10 @@ export function ChatOnboarding() {
  onClick={() =>
  setMultiSel((prev) => (sel ? prev.filter((x) => x !== o.id) : [...prev, o.id]))
  }
- className={`rounded-xl border-2 px-4 py-2.5 text-sm font-semibold transition-colors cursor-pointer ${
+ className={`rounded-full border-2 px-5 py-2.5 text-base font-semibold active:scale-[0.97] transition-all cursor-pointer ${
  sel
  ? "border-slate-900 bg-slate-900 text-white"
- : "border-slate-200 bg-white text-slate-700 hover:border-slate-300"
+ : "border-slate-200 bg-white text-slate-800 hover:border-slate-400"
  }`}
  >
  {o.label}
@@ -352,9 +352,9 @@ export function ChatOnboarding() {
  );
  })}
  </div>
- <Button size="lg" className="w-full" onClick={handleMultiSubmit} disabled={!multiSel.length}>
+ <Button size="xl" variant="gold" className="w-full" onClick={handleMultiSubmit} disabled={!multiSel.length}>
  Continuar
- <ChevronRight className="size-4" />
+ <ChevronRight className="size-5" />
  </Button>
  </>
  )}
@@ -363,12 +363,12 @@ export function ChatOnboarding() {
  )}
 
  {done && (
- <div className="fixed inset-x-0 bottom-0 z-20 border-t border-slate-200 bg-white/95 backdrop-blur-md p-4 pb-6">
+ <div className="fixed inset-x-0 bottom-0 z-20 border-t border-slate-200 bg-white/95 backdrop-blur-md px-4 pt-4 pb-[max(env(safe-area-inset-bottom),20px)] shadow-[0_-12px_32px_-16px_rgba(15,23,42,0.10)]">
  <div className="mx-auto max-w-3xl">
- <Button asChild size="xl" variant="primary" className="w-full">
- <Link href="/matches">Ver mis matches</Link>
+ <Button asChild size="xl" variant="gold" className="w-full">
+ <Link href="/matches">Ver mis matches <ChevronRight className="size-5" /></Link>
  </Button>
- <p className="mt-2 text-center text-xs text-slate-500">
+ <p className="mt-3 text-center text-xs text-slate-500">
  ✨ Perfil completo. Tu plan Free siempre está activo.
  </p>
  </div>
@@ -406,12 +406,12 @@ function WelcomeScreen({ onStart }: { onStart: () => void }) {
  />
 
  <div className="relative">
- {/* Moni intro */}
+ {/* Sofi intro */}
  <div className="flex items-center gap-4 mb-6">
- <MoniBadge size="lg" online />
+ <SofiBadge size="lg" online />
  <div>
  <h1 className="font-display text-2xl font-bold text-slate-900 leading-tight">
- Hola, soy Moni
+ Hola, soy Sofi
  </h1>
  <p className="text-sm text-emerald-600 font-mono">
  Tu asistente personal · en línea
@@ -454,7 +454,7 @@ function WelcomeScreen({ onStart }: { onStart: () => void }) {
  </div>
  </div>
 
- <Button onClick={onStart} size="xl" variant="primary" className="w-full">
+ <Button onClick={onStart} size="xl" variant="gold" className="w-full">
  Empezar — 5 minutos
  <ChevronRight className="size-5" />
  </Button>
@@ -486,9 +486,9 @@ function BenefitRow({ icon: Icon, text }: { icon: React.ComponentType<{ classNam
 }
 
 // ────────────────────────────────────────────────
-// Moni avatar component — friendly, with online indicator
+// Sofi avatar component — friendly, with online indicator
 // ────────────────────────────────────────────────
-function MoniBadge({
+function SofiBadge({
  size = "md",
  online = false,
 }: {
@@ -514,7 +514,7 @@ function MoniBadge({
  className={`grid ${sizing} place-items-center rounded-full bg-gradient-to-br from-gold-300 via-gold-400 to-amber-600 text-white font-display font-bold shadow-md ring-2 ring-white`}
  aria-hidden
  >
- M
+ S
  </div>
  {online && (
  <span
