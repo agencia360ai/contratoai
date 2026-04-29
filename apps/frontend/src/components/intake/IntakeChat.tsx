@@ -425,8 +425,8 @@ export function IntakeChat({
             </div>
           )}
 
-          {/* input row */}
-          <div className="border-t border-slate-200 bg-white p-3 flex items-center gap-2">
+          {/* input row — unified pill composer */}
+          <div className="border-t border-slate-200 bg-gradient-to-b from-white to-slate-50/40 p-3">
             <input
               ref={fileInputRef}
               type="file"
@@ -434,63 +434,99 @@ export function IntakeChat({
               accept="image/*,application/pdf,audio/*"
               onChange={onFileSelected}
             />
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              onClick={() => fileInputRef.current?.click()}
-              disabled={busy}
-              title="Adjuntar PDF, imagen o audio"
-            >
-              <Paperclip className="size-5" />
-            </Button>
-            <Button
-              type="button"
-              variant={recording ? "destructive" : "ghost"}
-              size="icon"
-              onClick={recording ? stopRecording : startRecording}
-              disabled={busy}
-              title={recording ? "Parar grabación" : "Grabar voz"}
-            >
-              {recording ? <Square className="size-5" /> : <Mic className="size-5" />}
-            </Button>
-            <Input
-              value={text}
-              onChange={(e) => setText(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && !e.shiftKey) {
-                  e.preventDefault();
-                  sendText();
-                }
-              }}
-              placeholder={recording ? "Grabando…" : "Escribe o adjunta…"}
-              disabled={busy || recording}
-              className="h-12 text-base"
-            />
-            <Button
-              type="button"
-              variant="gold"
-              size="icon"
-              onClick={sendText}
-              disabled={!text.trim() || busy}
-              title="Enviar"
-            >
-              <Send className="size-5" />
-            </Button>
+            <div className="flex items-center gap-1 rounded-2xl border border-slate-200 bg-white shadow-sm p-1.5 transition-all focus-within:border-slate-400 focus-within:shadow-md">
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={busy}
+                title="Adjuntar PDF, imagen o audio"
+                aria-label="Adjuntar archivo"
+                className="grid size-10 shrink-0 place-items-center rounded-xl text-slate-500 hover:bg-slate-100 hover:text-slate-900 transition-colors disabled:opacity-40 disabled:hover:bg-transparent"
+              >
+                <Paperclip className="size-5" />
+              </button>
+              <button
+                type="button"
+                onClick={recording ? stopRecording : startRecording}
+                disabled={busy}
+                title={recording ? "Parar grabación" : "Grabar voz"}
+                aria-label={recording ? "Parar grabación" : "Grabar voz"}
+                className={`grid size-10 shrink-0 place-items-center rounded-xl transition-all disabled:opacity-40 ${
+                  recording
+                    ? "bg-red-500 text-white shadow-[0_0_0_4px_rgba(239,68,68,0.18)] animate-pulse"
+                    : "text-slate-500 hover:bg-slate-100 hover:text-slate-900"
+                }`}
+              >
+                {recording ? <Square className="size-5" /> : <Mic className="size-5" />}
+              </button>
+              <input
+                type="text"
+                value={text}
+                onChange={(e) => setText(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && !e.shiftKey) {
+                    e.preventDefault();
+                    sendText();
+                  }
+                }}
+                placeholder={recording ? "Grabando…" : "Escribe o adjunta…"}
+                disabled={busy || recording}
+                className="flex-1 min-w-0 bg-transparent border-0 outline-none px-2 py-2 text-base text-slate-900 placeholder:text-slate-400 disabled:opacity-50"
+              />
+              <button
+                type="button"
+                onClick={sendText}
+                disabled={!text.trim() || busy}
+                title="Enviar"
+                aria-label="Enviar mensaje"
+                className={`grid size-10 shrink-0 place-items-center rounded-xl transition-all ${
+                  text.trim() && !busy
+                    ? "bg-gradient-to-b from-gold-400 to-gold-600 text-slate-900 shadow-[0_4px_12px_rgba(251,191,36,0.30)] hover:shadow-[0_6px_16px_rgba(251,191,36,0.45)] hover:-translate-y-0.5 active:translate-y-0"
+                    : "bg-slate-100 text-slate-400 cursor-not-allowed"
+                }`}
+              >
+                <Send className="size-5" />
+              </button>
+            </div>
+            <p className="mt-2 text-center text-xs text-slate-400">
+              <kbd className="rounded border border-slate-200 bg-white px-1.5 py-0.5 font-mono text-[10px] text-slate-500">Enter</kbd>{" "}
+              para enviar · adjunta PDF, imagen o audio
+            </p>
           </div>
         </div>
       )}
 
       {stage === "intake" && (pendingTexts.length > 0 || attachments.length > 0) && (
-        <div className="mt-5 flex justify-end">
-          <Button onClick={onDoneIntake} disabled={parsing} size="lg" variant="gold">
+        <div className="mt-5 rounded-2xl border border-amber-200 bg-gradient-to-br from-amber-50 to-amber-100/50 p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-sm">
+          <div className="flex items-start gap-3 min-w-0">
+            <div className="grid size-10 shrink-0 place-items-center rounded-full bg-amber-200/60 text-amber-700">
+              <Sparkles className="size-5" />
+            </div>
+            <div className="min-w-0">
+              <p className="text-base font-semibold text-slate-900 leading-tight">
+                {pendingTexts.length + attachments.length}{" "}
+                {pendingTexts.length + attachments.length === 1 ? "aporte listo" : "aportes listos"}
+              </p>
+              <p className="text-sm text-slate-600 mt-0.5">
+                Cuando termines, dale a estructurar y Sofi arma{" "}
+                {kind === "job" ? "la vacante" : "tu perfil"}.
+              </p>
+            </div>
+          </div>
+          <Button
+            onClick={onDoneIntake}
+            disabled={parsing}
+            size="lg"
+            variant="gold"
+            className="w-full sm:w-auto shrink-0"
+          >
             {parsing ? (
               <>
                 <Loader2 className="size-5 animate-spin" /> Procesando…
               </>
             ) : (
               <>
-                Listo, estructurar <Sparkles className="size-5" />
+                Estructurar <Sparkles className="size-5" />
               </>
             )}
           </Button>
