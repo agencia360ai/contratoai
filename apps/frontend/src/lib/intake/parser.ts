@@ -140,4 +140,67 @@ export async function parseWithClaude(
   };
 }
 
+const EDIT_SYSTEM = `Eres Sofi, asistente de reclutamiento. Recibes (a) el objeto JSON actual de una vacante o perfil, y (b) una instrucción en lenguaje natural del usuario describiendo qué cambiar.
+
+Devuelve SOLO un objeto JSON con esta forma:
+{
+  "parsed": { ...mismo schema que recibiste, con los cambios aplicados... },
+  "suggestions": string[],
+  "change_summary": string   // 1 línea breve en español, ej: "Salario actualizado a USD 1000–1500"
+}
+
+Reglas:
+- Aplica SOLO los cambios pedidos. Mantén intactos los campos que el usuario no mencionó.
+- Si el usuario pide algo ambiguo o que no aplica, deja todo igual y describe el problema en change_summary.
+- NUNCA inventes datos (salarios, fechas, empresas) que el usuario no haya dado explícitamente.
+- "suggestions" puede quedar como estaba o actualizarse si la edición invalida una sugerencia anterior.
+- Output: SOLO JSON sin markdown ni texto adicional.`;
+
+export async function editWithClaude(
+  kind: IntakeKind,
+  current: Record<string, unknown>,
+  suggestions: string[],
+  instruction: string,
+): Promise<{
+  parsed: ParsedJob | ParsedCandidate;
+  suggestions: string[];
+  changeSummary: string;
+}> {
+  const schemaSystem = kind === "job" ? JOB_SYSTEM : CANDIDATE_SYSTEM;
+  const userMsg = `JSON ACTUAL:
+\`\`\`json
+${JSON.stringify({ ...current, suggestions }, null, 2)}
+\`\`\`
+
+INSTRUCCIÓN DEL USUARIO:
+${instruction.trim()}`;
+
+  const response = await anthropic.messages.create({
+    model: MODEL,
+    max_tokens: 2500,
+    temperature: 0.2,
+    system: [
+      { type: "text", text: schemaSystem, cache_control: { type: "ephemeral" } },
+      { type: "text", text: EDIT_SYSTEM },
+    ],
+    messages: [{ role: "user", content: userMsg }],
+  });
+
+  const text = response.content
+    .map((c) => ("text" in c ? (c as { text: string }).text : ""))
+    .join("");
+  const result = extractJson(text) as {
+    parsed?: Record<string, unknown>;
+    suggestions?: string[];
+    change_summary?: string;
+  };
+  return {
+    parsed: (result.parsed || current) as unknown as ParsedJob | ParsedCandidate,
+    suggestions: Array.isArray(result.suggestions) ? result.suggestions : suggestions,
+    changeSummary: typeof result.change_summary === "string" && result.change_summary.trim()
+      ? result.change_summary.trim()
+      : "Ajuste aplicado.",
+  };
+}
+
 export type { RawInput };
