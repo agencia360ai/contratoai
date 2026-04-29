@@ -325,42 +325,50 @@ export function IntakeChat({
   // ---- Render ---------------------------------------------------------------
 
   return (
-    <div className="mx-auto max-w-2xl">
+    <div className="mx-auto max-w-3xl">
       {/* Header */}
-      <div className="mb-6 flex items-center gap-3">
+      <div className="mb-6 flex items-center gap-4">
         {link.display_avatar ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
             src={link.display_avatar}
             alt=""
-            className="size-12 rounded-full object-cover"
+            className="size-14 rounded-full object-cover ring-2 ring-white shadow-sm"
           />
         ) : (
-          <div className="grid size-12 place-items-center rounded-full bg-gold-500/20 text-gold-300">
-            <Sparkles className="size-5" />
+          <div className="grid size-14 place-items-center rounded-full bg-gradient-to-br from-gold-100 to-gold-200 text-gold-700 ring-2 ring-white shadow-sm">
+            <Sparkles className="size-6" />
           </div>
         )}
         <div className="min-w-0">
-          <p className="font-semibold leading-tight">
+          <p className="text-lg font-bold text-slate-900 leading-tight">
             {link.display_name || "Reclutador"}
           </p>
           {link.display_company && (
-            <p className="text-sm text-zinc-400 truncate">{link.display_company}</p>
+            <p className="text-sm text-slate-500 truncate">{link.display_company}</p>
           )}
         </div>
       </div>
 
       {link.kind === "both" && stage === "intake" && (
-        <div className="mb-4 grid grid-cols-2 gap-2 rounded-2xl border border-white/10 bg-white/[0.03] p-1">
+        <div className="mb-5 grid grid-cols-2 gap-1.5 rounded-2xl border border-slate-200 bg-white p-1.5 shadow-sm">
           <button
             onClick={() => setKind("job")}
-            className={`rounded-xl px-3 py-2 text-sm font-medium ${kind === "job" ? "bg-gold-500 text-zinc-950" : "text-zinc-300"}`}
+            className={`rounded-xl px-4 py-3 text-base font-semibold transition-colors ${
+              kind === "job"
+                ? "bg-slate-900 text-white shadow-sm"
+                : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
+            }`}
           >
             Tengo una vacante
           </button>
           <button
             onClick={() => setKind("candidate")}
-            className={`rounded-xl px-3 py-2 text-sm font-medium ${kind === "candidate" ? "bg-gold-500 text-zinc-950" : "text-zinc-300"}`}
+            className={`rounded-xl px-4 py-3 text-base font-semibold transition-colors ${
+              kind === "candidate"
+                ? "bg-slate-900 text-white shadow-sm"
+                : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
+            }`}
           >
             Busco trabajo
           </button>
@@ -369,10 +377,10 @@ export function IntakeChat({
 
       {/* CHAT */}
       {stage === "intake" && (
-        <div className="rounded-3xl border border-white/10 bg-white/[0.03] backdrop-blur-xl">
+        <div className="rounded-3xl border border-slate-200 bg-white shadow-sm overflow-hidden">
           <div
             ref={containerRef}
-            className="max-h-[60vh] min-h-[320px] overflow-y-auto px-5 py-6 space-y-3"
+            className="max-h-[60vh] min-h-[420px] overflow-y-auto px-6 py-8 space-y-4"
           >
             <AnimatePresence>
               {messages.map((m, i) => (
@@ -383,10 +391,10 @@ export function IntakeChat({
                   className={`flex ${m.who === "user" ? "justify-end" : "justify-start"}`}
                 >
                   <div
-                    className={`max-w-[85%] rounded-2xl px-4 py-2.5 text-sm ${
+                    className={`max-w-[85%] rounded-2xl px-5 py-3 text-base leading-relaxed shadow-sm ${
                       m.who === "user"
-                        ? "bg-gold-500 text-zinc-950"
-                        : "bg-white/[0.06] text-zinc-100"
+                        ? "rounded-br-sm bg-slate-900 text-white"
+                        : "rounded-bl-sm bg-slate-100 text-slate-900"
                     }`}
                   >
                     {m.text}
@@ -398,18 +406,19 @@ export function IntakeChat({
 
           {/* attachments preview */}
           {attachments.length > 0 && (
-            <div className="border-t border-white/10 px-5 py-3 flex flex-wrap gap-2">
+            <div className="border-t border-slate-200 bg-slate-50/50 px-6 py-3 flex flex-wrap gap-2">
               {attachments.map((a, i) => (
-                <Badge key={i} variant="secondary" className="gap-1.5">
-                  {a.type === "audio" ? <AudioLines className="size-3" /> : a.type === "image" ? <ImageIcon className="size-3" /> : <FileText className="size-3" />}
-                  {a.filename}
+                <Badge key={i} variant="secondary" className="gap-1.5 bg-white border border-slate-200 text-slate-700">
+                  {a.type === "audio" ? <AudioLines className="size-3.5" /> : a.type === "image" ? <ImageIcon className="size-3.5" /> : <FileText className="size-3.5" />}
+                  <span className="max-w-[180px] truncate">{a.filename}</span>
                   <button
                     onClick={() =>
                       setAttachments((arr) => arr.filter((_, j) => j !== i))
                     }
-                    className="ml-1 opacity-60 hover:opacity-100"
+                    className="ml-1 text-slate-400 hover:text-slate-700"
+                    aria-label="Quitar adjunto"
                   >
-                    <X className="size-3" />
+                    <X className="size-3.5" />
                   </button>
                 </Badge>
               ))}
@@ -417,7 +426,7 @@ export function IntakeChat({
           )}
 
           {/* input row */}
-          <div className="border-t border-white/10 p-3 flex items-center gap-2">
+          <div className="border-t border-slate-200 bg-white p-3 flex items-center gap-2">
             <input
               ref={fileInputRef}
               type="file"
@@ -433,7 +442,7 @@ export function IntakeChat({
               disabled={busy}
               title="Adjuntar PDF, imagen o audio"
             >
-              <Paperclip className="size-4" />
+              <Paperclip className="size-5" />
             </Button>
             <Button
               type="button"
@@ -443,7 +452,7 @@ export function IntakeChat({
               disabled={busy}
               title={recording ? "Parar grabación" : "Grabar voz"}
             >
-              {recording ? <Square className="size-4" /> : <Mic className="size-4" />}
+              {recording ? <Square className="size-5" /> : <Mic className="size-5" />}
             </Button>
             <Input
               value={text}
@@ -456,29 +465,32 @@ export function IntakeChat({
               }}
               placeholder={recording ? "Grabando…" : "Escribe o adjunta…"}
               disabled={busy || recording}
+              className="h-12 text-base"
             />
             <Button
               type="button"
+              variant="gold"
               size="icon"
               onClick={sendText}
               disabled={!text.trim() || busy}
+              title="Enviar"
             >
-              <Send className="size-4" />
+              <Send className="size-5" />
             </Button>
           </div>
         </div>
       )}
 
       {stage === "intake" && (pendingTexts.length > 0 || attachments.length > 0) && (
-        <div className="mt-4 flex justify-end">
-          <Button onClick={onDoneIntake} disabled={parsing} size="lg">
+        <div className="mt-5 flex justify-end">
+          <Button onClick={onDoneIntake} disabled={parsing} size="lg" variant="gold">
             {parsing ? (
               <>
-                <Loader2 className="size-4 animate-spin" /> Procesando…
+                <Loader2 className="size-5 animate-spin" /> Procesando…
               </>
             ) : (
               <>
-                Listo, estructurar <Sparkles className="size-4" />
+                Listo, estructurar <Sparkles className="size-5" />
               </>
             )}
           </Button>
@@ -487,9 +499,9 @@ export function IntakeChat({
 
       {/* REVIEW */}
       {stage === "review" && parsedResult && (
-        <div className="rounded-3xl border border-white/10 bg-white/[0.03] backdrop-blur-xl p-6 space-y-5">
+        <div className="rounded-3xl border border-slate-200 bg-white shadow-sm p-7 space-y-6">
           <div className="flex items-center justify-between gap-2">
-            <h2 className="font-display text-xl font-bold">
+            <h2 className="font-display text-2xl font-bold text-slate-900">
               {kind === "job" ? "Esta es la vacante" : "Este es tu perfil"}
             </h2>
             <Button
@@ -502,11 +514,11 @@ export function IntakeChat({
           </div>
 
           {parsedResult.suggestions.length > 0 && (
-            <div className="rounded-2xl border border-amber-500/20 bg-amber-500/5 p-4">
-              <p className="text-xs font-mono uppercase tracking-wider text-amber-300/80 mb-2 flex items-center gap-1.5">
+            <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4">
+              <p className="text-xs font-mono uppercase tracking-wider text-amber-700 mb-2 flex items-center gap-1.5">
                 <Lightbulb className="size-3.5" /> Sugerencias de Moni
               </p>
-              <ul className="text-sm text-amber-100/90 space-y-1.5">
+              <ul className="text-sm text-amber-900 space-y-1.5">
                 {parsedResult.suggestions.map((s, i) => (
                   <li key={i}>· {s}</li>
                 ))}
@@ -519,29 +531,32 @@ export function IntakeChat({
               value={editedJson}
               onChange={(e) => setEditedJson(e.target.value)}
               rows={18}
-              className="w-full rounded-xl bg-zinc-950 border border-white/10 p-3 font-mono text-xs text-zinc-200"
+              className="w-full rounded-xl bg-slate-50 border border-slate-200 p-3 font-mono text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-gold-400"
             />
           ) : (
             <ParsedView kind={kind} data={parsedResult.parsed} />
           )}
 
-          <div className="rounded-2xl border border-white/10 p-4 space-y-3">
-            <p className="text-sm font-medium">Tus datos para confirmar</p>
+          <div className="rounded-2xl border border-slate-200 bg-slate-50/50 p-5 space-y-3">
+            <p className="text-base font-semibold text-slate-900">Tus datos para confirmar</p>
             <Input
               placeholder="Tu nombre"
               value={name}
               onChange={(e) => setName(e.target.value)}
+              className="h-12 text-base"
             />
             <Input
               placeholder="Tu correo"
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              className="h-12 text-base"
             />
             <Input
               placeholder="Tu WhatsApp (opcional)"
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
+              className="h-12 text-base"
             />
           </div>
 
@@ -549,8 +564,8 @@ export function IntakeChat({
             <Button variant="ghost" onClick={() => setStage("intake")}>
               Volver
             </Button>
-            <Button onClick={onConfirmReview} disabled={busy} size="lg">
-              {busy ? <Loader2 className="size-4 animate-spin" /> : "Enviar código a mi correo"}
+            <Button onClick={onConfirmReview} disabled={busy} size="lg" variant="gold">
+              {busy ? <Loader2 className="size-5 animate-spin" /> : "Enviar código a mi correo"}
             </Button>
           </div>
         </div>
@@ -558,24 +573,24 @@ export function IntakeChat({
 
       {/* VERIFY */}
       {stage === "verify" && (
-        <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-6 space-y-4 text-center">
-          <h2 className="font-display text-xl font-bold">Revisa tu correo</h2>
-          <p className="text-sm text-zinc-400">
-            Te enviamos un código de 6 dígitos a <strong>{email}</strong>.
+        <div className="rounded-3xl border border-slate-200 bg-white shadow-sm p-7 space-y-5 text-center">
+          <h2 className="font-display text-2xl font-bold text-slate-900">Revisa tu correo</h2>
+          <p className="text-base text-slate-600">
+            Te enviamos un código de 6 dígitos a <strong className="text-slate-900">{email}</strong>.
           </p>
           <Input
             value={code}
             onChange={(e) => setCode(e.target.value)}
             placeholder="000000"
-            className="text-center text-2xl font-mono tracking-widest"
+            className="h-14 text-center text-3xl font-mono tracking-[0.4em]"
             maxLength={6}
           />
-          <Button onClick={onSubmitCode} disabled={busy} size="lg" className="w-full">
-            {busy ? <Loader2 className="size-4 animate-spin" /> : "Confirmar"}
+          <Button onClick={onSubmitCode} disabled={busy} size="lg" variant="gold" className="w-full">
+            {busy ? <Loader2 className="size-5 animate-spin" /> : "Confirmar"}
           </Button>
           <button
             onClick={() => setStage("review")}
-            className="text-xs text-zinc-500 hover:text-zinc-300"
+            className="text-sm text-slate-500 hover:text-slate-900"
           >
             ← Editar correo
           </button>
@@ -584,12 +599,12 @@ export function IntakeChat({
 
       {/* DONE */}
       {stage === "done" && (
-        <div className="rounded-3xl border border-emerald-500/30 bg-emerald-500/5 p-8 text-center space-y-3">
-          <CheckCircle2 className="size-12 mx-auto text-emerald-400" />
-          <h2 className="font-display text-2xl font-bold">
+        <div className="rounded-3xl border border-emerald-200 bg-emerald-50 p-10 text-center space-y-4 shadow-sm">
+          <CheckCircle2 className="size-14 mx-auto text-emerald-600" />
+          <h2 className="font-display text-3xl font-bold text-slate-900">
             {kind === "job" ? "¡Vacante registrada!" : "¡Perfil registrado!"}
           </h2>
-          <p className="text-zinc-300">
+          <p className="text-base text-slate-700 max-w-md mx-auto leading-relaxed">
             {kind === "job"
               ? `Le avisamos a ${link.display_name || "tu reclutador"} y ya empezamos a buscar candidatos.`
               : `Te avisaremos cuando aparezcan vacantes que te encajen.`}
@@ -598,7 +613,7 @@ export function IntakeChat({
       )}
 
       {error && (
-        <div className="mt-4 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-200">
+        <div className="mt-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
           {error}
         </div>
       )}
@@ -631,28 +646,28 @@ function ParsedView({
     return (
       <div className="space-y-4">
         <div>
-          <h3 className="text-2xl font-bold leading-tight">{j.title}</h3>
-          <p className="text-zinc-400">
+          <h3 className="text-2xl font-bold text-slate-900 leading-tight">{j.title}</h3>
+          <p className="text-slate-600">
             {[j.company_name, j.location, j.modality].filter(Boolean).join(" · ")}
           </p>
           {(j.salary_min || j.salary_max) && (
-            <p className="text-gold-300 font-mono mt-1">
+            <p className="text-gold-700 font-mono font-semibold mt-1">
               {j.salary_currency || "USD"} {j.salary_min}
               {j.salary_max && j.salary_max !== j.salary_min ? ` – ${j.salary_max}` : ""}
             </p>
           )}
         </div>
         {j.description && (
-          <p className="text-sm text-zinc-200 whitespace-pre-line leading-relaxed">
+          <p className="text-base text-slate-700 whitespace-pre-line leading-relaxed">
             {j.description}
           </p>
         )}
         {j.requirements?.length ? (
           <div>
-            <p className="text-xs font-mono uppercase tracking-wider text-zinc-500 mb-2">
+            <p className="text-xs font-mono uppercase tracking-wider text-slate-500 mb-2">
               Requisitos
             </p>
-            <ul className="text-sm space-y-1">
+            <ul className="text-sm text-slate-800 space-y-1">
               {j.requirements.map((r, i) => (
                 <li key={i}>· {r}</li>
               ))}
@@ -670,10 +685,10 @@ function ParsedView({
         ) : null}
         {j.benefits?.length ? (
           <div>
-            <p className="text-xs font-mono uppercase tracking-wider text-zinc-500 mb-2">
+            <p className="text-xs font-mono uppercase tracking-wider text-slate-500 mb-2">
               Beneficios
             </p>
-            <ul className="text-sm space-y-1">
+            <ul className="text-sm text-slate-800 space-y-1">
               {j.benefits.map((b, i) => (
                 <li key={i}>· {b}</li>
               ))}
@@ -697,13 +712,13 @@ function ParsedView({
   return (
     <div className="space-y-4">
       <div>
-        <h3 className="text-2xl font-bold leading-tight">{c.full_name}</h3>
-        <p className="text-zinc-400">
+        <h3 className="text-2xl font-bold text-slate-900 leading-tight">{c.full_name}</h3>
+        <p className="text-slate-600">
           {[c.headline, c.location].filter(Boolean).join(" · ")}
         </p>
       </div>
       {c.summary && (
-        <p className="text-sm text-zinc-200 whitespace-pre-line leading-relaxed">
+        <p className="text-base text-slate-700 whitespace-pre-line leading-relaxed">
           {c.summary}
         </p>
       )}
@@ -718,19 +733,19 @@ function ParsedView({
       ) : null}
       {c.experiences?.length ? (
         <div className="space-y-2">
-          <p className="text-xs font-mono uppercase tracking-wider text-zinc-500">
+          <p className="text-xs font-mono uppercase tracking-wider text-slate-500">
             Experiencia
           </p>
           {c.experiences.map((x, i) => (
-            <div key={i} className="rounded-xl bg-white/[0.03] p-3">
-              <p className="font-semibold">{x.title}</p>
-              <p className="text-sm text-zinc-400">
+            <div key={i} className="rounded-xl border border-slate-200 bg-slate-50 p-4">
+              <p className="font-semibold text-slate-900">{x.title}</p>
+              <p className="text-sm text-slate-600">
                 {[x.company, [x.start, x.end].filter(Boolean).join(" – ")]
                   .filter(Boolean)
                   .join(" · ")}
               </p>
               {x.description && (
-                <p className="text-sm text-zinc-300 mt-1.5 whitespace-pre-line">
+                <p className="text-sm text-slate-700 mt-1.5 whitespace-pre-line">
                   {x.description}
                 </p>
               )}
@@ -740,12 +755,12 @@ function ParsedView({
       ) : null}
       {c.education?.length ? (
         <div className="space-y-2">
-          <p className="text-xs font-mono uppercase tracking-wider text-zinc-500">
+          <p className="text-xs font-mono uppercase tracking-wider text-slate-500">
             Educación
           </p>
           {c.education.map((e, i) => (
-            <p key={i} className="text-sm">
-              <strong>{e.degree}</strong>
+            <p key={i} className="text-sm text-slate-800">
+              <strong className="text-slate-900">{e.degree}</strong>
               {e.institution ? ` · ${e.institution}` : ""}
               {e.year ? ` · ${e.year}` : ""}
             </p>
@@ -753,8 +768,8 @@ function ParsedView({
         </div>
       ) : null}
       {c.languages?.length ? (
-        <p className="text-sm text-zinc-300">
-          <span className="text-zinc-500">Idiomas:</span> {c.languages.join(", ")}
+        <p className="text-sm text-slate-700">
+          <span className="text-slate-500">Idiomas:</span> {c.languages.join(", ")}
         </p>
       ) : null}
     </div>
