@@ -82,7 +82,9 @@ export function IntakeChat({
 
   const [parsedResult, setParsedResult] = useState<ParsedResult | null>(null);
   const [editing, setEditing] = useState(false);
-  const [editedJson, setEditedJson] = useState("");
+  const [editInstruction, setEditInstruction] = useState("");
+  const [editing_busy, setEditingBusy] = useState(false);
+  const [editLog, setEditLog] = useState<{ instruction: string; summary: string }[]>([]);
 
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
@@ -234,12 +236,50 @@ export function IntakeChat({
         return;
       }
       setParsedResult(json as ParsedResult);
-      setEditedJson(JSON.stringify(json.parsed, null, 2));
       setStage("review");
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e));
     } finally {
       setParsing(false);
+    }
+  }
+
+  // ---- Apply natural-language edit ------------------------------------------
+
+  async function applyEdit() {
+    const instr = editInstruction.trim();
+    if (!instr || !parsedResult) return;
+    setEditingBusy(true);
+    setError(null);
+    try {
+      const r = await fetch(`/api/intake/${link.slug}/edit`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          kind,
+          parsed: parsedResult.parsed,
+          suggestions: parsedResult.suggestions,
+          instruction: instr,
+        }),
+      });
+      const json = await r.json();
+      if (!r.ok) {
+        setError(json.error || "edit_failed");
+        return;
+      }
+      setParsedResult({
+        parsed: json.parsed,
+        suggestions: Array.isArray(json.suggestions) ? json.suggestions : [],
+      });
+      setEditLog((log) => [
+        ...log,
+        { instruction: instr, summary: json.change_summary || "Ajuste aplicado." },
+      ]);
+      setEditInstruction("");
+    } catch (e) {
+      setError(e instanceof Error ? e.message : String(e));
+    } finally {
+      setEditingBusy(false);
     }
   }
 
@@ -250,15 +290,7 @@ export function IntakeChat({
       setError("Necesito tu correo para confirmar.");
       return;
     }
-    let parsedToSend = parsedResult?.parsed || {};
-    if (editing) {
-      try {
-        parsedToSend = JSON.parse(editedJson);
-      } catch {
-        setError("El JSON editado no es válido.");
-        return;
-      }
-    }
+    const parsedToSend = parsedResult?.parsed || {};
     setBusy(true);
     setError(null);
     try {
@@ -425,8 +457,8 @@ export function IntakeChat({
             </div>
           )}
 
-          {/* input row */}
-          <div className="border-t border-slate-200 bg-white p-3 flex items-center gap-2">
+          {/* input row — unified pill composer */}
+          <div className="border-t border-slate-200 bg-gradient-to-b from-white to-slate-50/40 p-3">
             <input
               ref={fileInputRef}
               type="file"
@@ -434,63 +466,99 @@ export function IntakeChat({
               accept="image/*,application/pdf,audio/*"
               onChange={onFileSelected}
             />
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              onClick={() => fileInputRef.current?.click()}
-              disabled={busy}
-              title="Adjuntar PDF, imagen o audio"
-            >
-              <Paperclip className="size-5" />
-            </Button>
-            <Button
-              type="button"
-              variant={recording ? "destructive" : "ghost"}
-              size="icon"
-              onClick={recording ? stopRecording : startRecording}
-              disabled={busy}
-              title={recording ? "Parar grabación" : "Grabar voz"}
-            >
-              {recording ? <Square className="size-5" /> : <Mic className="size-5" />}
-            </Button>
-            <Input
-              value={text}
-              onChange={(e) => setText(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && !e.shiftKey) {
-                  e.preventDefault();
-                  sendText();
-                }
-              }}
-              placeholder={recording ? "Grabando…" : "Escribe o adjunta…"}
-              disabled={busy || recording}
-              className="h-12 text-base"
-            />
-            <Button
-              type="button"
-              variant="gold"
-              size="icon"
-              onClick={sendText}
-              disabled={!text.trim() || busy}
-              title="Enviar"
-            >
-              <Send className="size-5" />
-            </Button>
+            <div className="flex items-center gap-1 rounded-2xl border border-slate-200 bg-white shadow-sm p-1.5 transition-all focus-within:border-slate-400 focus-within:shadow-md">
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={busy}
+                title="Adjuntar PDF, imagen o audio"
+                aria-label="Adjuntar archivo"
+                className="grid size-10 shrink-0 place-items-center rounded-xl text-slate-500 hover:bg-slate-100 hover:text-slate-900 transition-colors disabled:opacity-40 disabled:hover:bg-transparent"
+              >
+                <Paperclip className="size-5" />
+              </button>
+              <button
+                type="button"
+                onClick={recording ? stopRecording : startRecording}
+                disabled={busy}
+                title={recording ? "Parar grabación" : "Grabar voz"}
+                aria-label={recording ? "Parar grabación" : "Grabar voz"}
+                className={`grid size-10 shrink-0 place-items-center rounded-xl transition-all disabled:opacity-40 ${
+                  recording
+                    ? "bg-red-500 text-white shadow-[0_0_0_4px_rgba(239,68,68,0.18)] animate-pulse"
+                    : "text-slate-500 hover:bg-slate-100 hover:text-slate-900"
+                }`}
+              >
+                {recording ? <Square className="size-5" /> : <Mic className="size-5" />}
+              </button>
+              <input
+                type="text"
+                value={text}
+                onChange={(e) => setText(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && !e.shiftKey) {
+                    e.preventDefault();
+                    sendText();
+                  }
+                }}
+                placeholder={recording ? "Grabando…" : "Escribe o adjunta…"}
+                disabled={busy || recording}
+                className="flex-1 min-w-0 bg-transparent border-0 outline-none px-2 py-2 text-base text-slate-900 placeholder:text-slate-400 disabled:opacity-50"
+              />
+              <button
+                type="button"
+                onClick={sendText}
+                disabled={!text.trim() || busy}
+                title="Enviar"
+                aria-label="Enviar mensaje"
+                className={`grid size-10 shrink-0 place-items-center rounded-xl transition-all ${
+                  text.trim() && !busy
+                    ? "bg-gradient-to-b from-gold-400 to-gold-600 text-slate-900 shadow-[0_4px_12px_rgba(251,191,36,0.30)] hover:shadow-[0_6px_16px_rgba(251,191,36,0.45)] hover:-translate-y-0.5 active:translate-y-0"
+                    : "bg-slate-100 text-slate-400 cursor-not-allowed"
+                }`}
+              >
+                <Send className="size-5" />
+              </button>
+            </div>
+            <p className="mt-2 text-center text-xs text-slate-400">
+              <kbd className="rounded border border-slate-200 bg-white px-1.5 py-0.5 font-mono text-[10px] text-slate-500">Enter</kbd>{" "}
+              para enviar · adjunta PDF, imagen o audio
+            </p>
           </div>
         </div>
       )}
 
       {stage === "intake" && (pendingTexts.length > 0 || attachments.length > 0) && (
-        <div className="mt-5 flex justify-end">
-          <Button onClick={onDoneIntake} disabled={parsing} size="lg" variant="gold">
+        <div className="mt-5 rounded-2xl border border-amber-200 bg-gradient-to-br from-amber-50 to-amber-100/50 p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-sm">
+          <div className="flex items-start gap-3 min-w-0">
+            <div className="grid size-10 shrink-0 place-items-center rounded-full bg-amber-200/60 text-amber-700">
+              <Sparkles className="size-5" />
+            </div>
+            <div className="min-w-0">
+              <p className="text-base font-semibold text-slate-900 leading-tight">
+                {pendingTexts.length + attachments.length}{" "}
+                {pendingTexts.length + attachments.length === 1 ? "aporte listo" : "aportes listos"}
+              </p>
+              <p className="text-sm text-slate-600 mt-0.5">
+                Cuando termines, dale a estructurar y Sofi arma{" "}
+                {kind === "job" ? "la vacante" : "tu perfil"}.
+              </p>
+            </div>
+          </div>
+          <Button
+            onClick={onDoneIntake}
+            disabled={parsing}
+            size="lg"
+            variant="gold"
+            className="w-full sm:w-auto shrink-0"
+          >
             {parsing ? (
               <>
                 <Loader2 className="size-5 animate-spin" /> Procesando…
               </>
             ) : (
               <>
-                Listo, estructurar <Sparkles className="size-5" />
+                Estructurar <Sparkles className="size-5" />
               </>
             )}
           </Button>
@@ -509,7 +577,7 @@ export function IntakeChat({
               size="sm"
               onClick={() => setEditing((e) => !e)}
             >
-              <Pencil className="size-3.5" /> {editing ? "Vista" : "Editar"}
+              <Pencil className="size-3.5" /> {editing ? "Listo" : "Ajustar"}
             </Button>
           </div>
 
@@ -526,15 +594,17 @@ export function IntakeChat({
             </div>
           )}
 
-          {editing ? (
-            <textarea
-              value={editedJson}
-              onChange={(e) => setEditedJson(e.target.value)}
-              rows={18}
-              className="w-full rounded-xl bg-slate-50 border border-slate-200 p-3 font-mono text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-gold-400"
+          <ParsedView kind={kind} data={parsedResult.parsed} />
+
+          {editing && (
+            <EditChat
+              kind={kind}
+              instruction={editInstruction}
+              setInstruction={setEditInstruction}
+              busy={editing_busy}
+              log={editLog}
+              onSubmit={applyEdit}
             />
-          ) : (
-            <ParsedView kind={kind} data={parsedResult.parsed} />
           )}
 
           <div className="rounded-2xl border border-slate-200 bg-slate-50/50 p-5 space-y-3">
@@ -772,6 +842,111 @@ function ParsedView({
           <span className="text-slate-500">Idiomas:</span> {c.languages.join(", ")}
         </p>
       ) : null}
+    </div>
+  );
+}
+
+function EditChat({
+  kind,
+  instruction,
+  setInstruction,
+  busy,
+  log,
+  onSubmit,
+}: {
+  kind: IntakeKind;
+  instruction: string;
+  setInstruction: (v: string) => void;
+  busy: boolean;
+  log: { instruction: string; summary: string }[];
+  onSubmit: () => void;
+}) {
+  const examples =
+    kind === "job"
+      ? [
+          "Salario 1000–1500 USD",
+          "Agrega 'comidas incluidas' a beneficios",
+          "Cambia la modalidad a híbrido",
+        ]
+      : [
+          "Cambia mi headline a Diseñadora UX · 3 años",
+          "Agrega inglés intermedio a idiomas",
+          "Sube mi salario mínimo a 1200",
+        ];
+
+  return (
+    <div className="rounded-2xl border border-indigo-200 bg-gradient-to-br from-indigo-50/60 to-violet-50/60 p-4 sm:p-5 space-y-3">
+      <div className="flex items-start gap-3">
+        <div className="grid size-9 shrink-0 place-items-center rounded-full bg-gradient-to-br from-gold-300 via-gold-400 to-amber-600 text-white font-display font-bold shadow-sm ring-2 ring-white">
+          S
+        </div>
+        <div className="min-w-0 flex-1">
+          <p className="text-sm font-semibold text-slate-900">
+            Dime qué ajustar y lo arreglo.
+          </p>
+          <p className="text-xs text-slate-600 mt-0.5">
+            Escribe en lenguaje normal — yo actualizo {kind === "job" ? "la vacante" : "tu perfil"}.
+          </p>
+        </div>
+      </div>
+
+      {log.length > 0 && (
+        <ul className="space-y-1.5 pl-12">
+          {log.map((entry, i) => (
+            <li
+              key={i}
+              className="text-xs text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-lg px-3 py-1.5 flex items-start gap-1.5"
+            >
+              <CheckCircle2 className="size-3.5 shrink-0 mt-0.5" />
+              <span className="leading-snug">{entry.summary}</span>
+            </li>
+          ))}
+        </ul>
+      )}
+
+      <div className="flex flex-wrap gap-1.5 pl-12">
+        {examples.map((ex) => (
+          <button
+            key={ex}
+            type="button"
+            onClick={() => setInstruction(ex)}
+            disabled={busy}
+            className="rounded-full border border-indigo-200 bg-white/80 px-3 py-1 text-xs text-indigo-700 hover:bg-white hover:border-indigo-300 disabled:opacity-50 transition-colors"
+          >
+            {ex}
+          </button>
+        ))}
+      </div>
+
+      <div className="flex items-center gap-1 rounded-2xl border border-slate-200 bg-white shadow-sm p-1.5 transition-all focus-within:border-slate-400 focus-within:shadow-md">
+        <input
+          type="text"
+          value={instruction}
+          onChange={(e) => setInstruction(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && !e.shiftKey) {
+              e.preventDefault();
+              onSubmit();
+            }
+          }}
+          placeholder={busy ? "Sofi está actualizando…" : "Ej: cambia el salario a 1200…"}
+          disabled={busy}
+          className="flex-1 min-w-0 bg-transparent border-0 outline-none px-3 py-2 text-base text-slate-900 placeholder:text-slate-400 disabled:opacity-50"
+        />
+        <button
+          type="button"
+          onClick={onSubmit}
+          disabled={!instruction.trim() || busy}
+          aria-label="Aplicar ajuste"
+          className={`grid size-10 shrink-0 place-items-center rounded-xl transition-all ${
+            instruction.trim() && !busy
+              ? "bg-gradient-to-b from-gold-400 to-gold-600 text-slate-900 shadow-[0_4px_12px_rgba(251,191,36,0.30)] hover:shadow-[0_6px_16px_rgba(251,191,36,0.45)] hover:-translate-y-0.5 active:translate-y-0"
+              : "bg-slate-100 text-slate-400 cursor-not-allowed"
+          }`}
+        >
+          {busy ? <Loader2 className="size-5 animate-spin" /> : <Send className="size-5" />}
+        </button>
+      </div>
     </div>
   );
 }
